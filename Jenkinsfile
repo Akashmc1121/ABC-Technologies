@@ -35,17 +35,15 @@ pipeline {
             }
         }
 
-      stage('SonarQube Analysis') {
+     stage('SonarQube Analysis') {
             steps {
-                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                    sh '''
-                    mvn sonar:sonar \
-                      -Dsonar.projectKey=ABC-Technologies \
-                      -Dsonar.projectName=ABC-Technologies \
-                      -Dsonar.token=${SONAR_TOKEN} \
-                      -Dsonar.host.url=http://your-sonarqube-server-url:9000
-                    '''
-                }
+                sh '''
+                mvn sonar:sonar \
+                  -Dsonar.projectKey=ABC-Technologies \
+                  -Dsonar.projectName=ABC-Technologies \
+                  -Dsonar.token=YOUR_ACTUAL_SONAR_TOKEN_HERE \
+                  -Dsonar.host.url=http://your-sonarqube-server-url:9000
+                '''
             }
         }
 
