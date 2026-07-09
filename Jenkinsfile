@@ -11,7 +11,6 @@ pipeline {
     }
 
     stages {
-
         stage('Checkout') {
             steps {
                 checkout scm
@@ -35,7 +34,7 @@ pipeline {
             }
         }
 
-     stage('SonarQube Analysis') {
+        stage('SonarQube Analysis') {
             steps {
                 sh '''
                 mvn sonar:sonar \
@@ -59,20 +58,20 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            tools {
-                jdk 'Jenkins-Configured-JDK17-Name' // Match the name from Manage Jenkins -> Tools
-            }
+        stage('Deploy Container') {
             steps {
                 sh '''
-                mvn sonar:sonar \
-                  -Dsonar.projectKey=ABC-Technologies \
-                  -Dsonar.projectName=ABC-Technologies \
-                  -Dsonar.token=YOUR_ACTUAL_SONAR_TOKEN \
-                  -Dsonar.host.url=http://<YOUR-ACTUAL-SONAR-IP>:9000
+                docker stop ${CONTAINER_NAME} || true
+                docker rm ${CONTAINER_NAME} || true
+
+                docker run -d \
+                  --name ${CONTAINER_NAME} \
+                  -p 8084:8080 \
+                  ${IMAGE_NAME}:latest
                 '''
             }
         }
+    } // <-- This closes the "stages" block cleanly
 
     post {
         success {
