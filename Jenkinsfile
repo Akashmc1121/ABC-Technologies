@@ -34,15 +34,17 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
+      stage('SonarQube Analysis') {
             steps {
-                sh '''
-                mvn sonar:sonar \
-                  -Dsonar.projectKey=ABC-Technologies \
-                  -Dsonar.projectName=ABC-Technologies \
-                  -Dsonar.token=YOUR_ACTUAL_SONAR_TOKEN_HERE \
-                  -Dsonar.host.url=http://your-sonarqube-server-url:9000
-                '''
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    sh '''
+                    mvn sonar:sonar \
+                      -Dsonar.projectKey=ABC-Technologies \
+                      -Dsonar.projectName=ABC-Technologies \
+                      -Dsonar.token=YOUR_ACTUAL_SONAR_TOKEN_HERE \
+                      -Dsonar.host.url=http://your-sonarqube-server-url:9000
+                    '''
+                }
             }
         }
 
