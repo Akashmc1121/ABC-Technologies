@@ -6,8 +6,8 @@ pipeline {
     }
 
     environment {
-        IMAGE_NAME = "abc-technologies"
-        CONTAINER_NAME = "abc-technologies"
+        IMAGE_NAME      = "abc-technologies"
+        CONTAINER_NAME  = "abc-technologies"
     }
 
     stages {
@@ -24,20 +24,28 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Unit Test') {
             steps {
                 sh 'mvn test'
+            }
+            post {
+                always {
+                    junit '**/target/surefire-reports/*.xml'
+                }
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh '''
-                    mvn sonar:sonar \
-                    -Dsonar.projectKey=ABC-Technologies \
-                    -Dsonar.projectName=ABC-Technologies
-                    '''
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                        sh '''
+                        mvn sonar:sonar \
+                          -Dsonar.projectKey=ABC-Technologies \
+                          -Dsonar.projectName=ABC-Technologies \
+                          -Dsonar.token=$SONAR_TOKEN
+                        '''
+                    }
                 }
             }
         }
@@ -73,8 +81,13 @@ pipeline {
         success {
             echo 'Pipeline completed successfully.'
         }
+
         failure {
             echo 'Pipeline failed.'
+        }
+
+        always {
+            cleanWs()
         }
     }
 }
